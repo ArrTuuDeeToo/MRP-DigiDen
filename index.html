@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Order Summary</title>
+    <style>
+        /* Set background image and overall page styling */
+        body {
+            background-image: url('https://cdn.discordapp.com/attachments/1280957713651601539/1280957713949655084/Leap_Frog.jpg?ex=6732f596&is=6731a416&hm=60af1a01b632f3d14edc9b5d7985bf2d9020307c1c1b1d9ae59eb8e402cc0cfd&');
+            background-size: cover;
+            background-position: center;
+            color: #f2f2f2;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Logo styling */
+        #logo {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            width: 150px;
+        }
+
+        /* Main container for order summary */
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 1100px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .panel {
+            flex: 1;
+            min-width: 320px;
+            max-width: 500px;
+            margin: 0;
+            background-color: #444;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .panel h3 {
+            color: #f2f2f2;
+        }
+
+        /* Set grid for menu items */
+        #item-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Two items per row */
+            gap: 10px;
+        }
+
+        .item {
+            padding: 8px;
+            border: none;
+            background-color: #666;
+            color: #f2f2f2;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .item:hover {
+            background-color: #777;
+        }
+
+        .discount {
+            margin-top: 10px;
+        }
+
+        .order-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .order-actions button {
+            padding: 10px;
+            border: none;
+            background-color: #666;
+            color: #f2f2f2;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .order-actions button:hover {
+            background-color: #777;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #666;
+            background-color: #555;
+            color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo at the top -->
+    <img id="logo" src="https://media.discordapp.net/attachments/1200122767916412959/1297018009403261079/logo_banner.png?ex=673360e6&is=67320f66&hm=73099846d5dcb0fc9a8f87af5b39e05423ce5f6f3025e7a7987ae8683d9d1c99&=&format=webp&quality=lossless&width=741&height=417" alt="Logo">
+
+    <!-- Main container for order summary -->
+    <div class="container">
+        <div class="panel" id="menu">
+            <h3>Menu</h3>
+            <div id="item-grid"></div>
+        </div>
+
+        <div class="panel">
+            <h3>Order Summary</h3>
+            <ul id="order-list">No items added</ul>
+            <p>Subtotal: $<span id="subtotal">0.00</span></p>
+
+            <label class="discount">
+                <input type="checkbox" id="discount30"> 30% Discount
+            </label>
+            <label class="discount">
+                <input type="checkbox" id="discount40"> 40% Employee Discount
+            </label>
+
+            <input type="text" id="order-name" placeholder="Enter order name">
+
+            <div class="order-actions">
+                <button onclick="clearOrder()">Clear Order</button>
+                <button onclick="saveAsFavorite()">Save as Favorite</button>
+                <button onclick="completeOrder()">Complete Order</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let order = {};
+
+        const menuItems = {
+            "Food": [
+                { name: "🥗 Salad", price: 150 },
+                { name: "🍜 Pad Thai", price: 200 },
+                { name: "🍣 Sashimi Mix", price: 250 }
+            ],
+            "Desserts": [
+                { name: "🍪 Froggy Bites", price: 150 },
+                { name: "🍩 Froggy Donuts", price: 150 },
+                { name: "🧁 Froggy Cupcakes", price: 150 },
+                { name: "🍰 Froggy Cakes", price: 200 }
+            ],
+            "Drinks": [
+                { name: "🥛 Choccy Milk", price: 150 },
+                { name: "🍋 Fresh Lemonade", price: 180 },
+                { name: "🍃 Mint Frappe", price: 200 },
+                { name: "🍵 Matcha Latte", price: 200 },
+                { name: "🥤 Froggy Shake", price: 250 }
+            ],
+            "Matcha Latte Specials": [
+                { name: "🍵 10 Matcha Lattes", price: 1600 },
+                { name: "🍵 20 Matcha Lattes", price: 2500 },
+                { name: "🍵 30 Matcha Lattes", price: 3500 },
+                { name: "🍵 40 Matcha Lattes", price: 4500 },
+                { name: "🍵 50 Matcha Lattes", price: 5500 },
+                { name: "🍵 100 Matcha Lattes", price: 9000 }
+            ],
+            "Specials": [
+                { name: "🍹 The Froggy Beginning", price: 5000 },
+                { name: "🥤 32 Froggy Shakes", price: 5000 }
+            ],
+            "Meal Deals": [
+                { name: "🐸 The Leaping Nibbles", price: 1200 },
+                { name: "🐸 Froggy Snacks", price: 1800 },
+                { name: "🐸 An Amazing, Ribbiting Lunch", price: 2500 }
+            ]
+        };
+
+        // Generate menu items
+        function generateMenu() {
+            const itemGrid = document.getElementById("item-grid");
+            for (let category in menuItems) {
+                let categoryDiv = document.createElement("div");
+                categoryDiv.innerHTML = `<h4>${category}</h4>`;
+                menuItems[category].forEach(item => {
+                    let itemDiv = document.createElement("div");
+                    itemDiv.classList.add("item");
+                    itemDiv.textContent = `${item.name} - $${item.price}`;
+                    itemDiv.onclick = () => addItem(item.name, item.price);
+                    categoryDiv.appendChild(itemDiv);
+                });
+                itemGrid.appendChild(categoryDiv);
+            }
+        }
+
+        function addItem(name, price) {
+            if (order[name]) {
+                order[name].quantity++;
+                order[name].totalPrice += price;
+            } else {
+                order[name] = { quantity: 1, price: price, totalPrice: price };
+            }
+            updateOrderSummary();
+        }
+
+        function updateOrderSummary() {
+            const orderList = document.getElementById("order-list");
+            const subtotal = document.getElementById("subtotal");
+            const discount30 = document.getElementById("discount30").checked;
+            const discount40 = document.getElementById("discount40").checked;
+
+            orderList.innerHTML = "";
+            let subtotalValue = 0;
+            let orderSummaryText = "";
+
+            for (let itemName in order) {
+                let item = order[itemName];
+                subtotalValue += item.totalPrice;
+                orderSummaryText += `<li>${item.quantity}x ${itemName} - $${item.totalPrice.toFixed(2)}</li>`;
+            }
+
+            // Apply discount logic here
+            if (discount30) {
+                subtotalValue *= 0.7;  // Apply 30% discount
+            } else if (discount40) {
+                subtotalValue *= 0.6;  // Apply 40% employee discount
+            }
+
+            orderList.innerHTML = Object.keys(order).length ? `<ul>${orderSummaryText}</ul>` : "No items added";
+            subtotal.textContent = subtotalValue.toFixed(2);
+        }
+
+        // Handle discount checkbox toggle
+        document.getElementById("discount30").addEventListener("change", updateOrderSummary);
+        document.getElementById("discount40").addEventListener("change", updateOrderSummary);
+
+        function clearOrder() {
+            order = {};
+            updateOrderSummary();
+        }
+
+        function saveAsFavorite() {
+            if (Object.keys(order).length === 0) return alert("Add items before saving!");
+            const orderName = document.getElementById("order-name").value || `Favorite`;
+            alert(`Order saved as ${orderName}`);
+        }
+
+function completeOrder() {
+    const orderName = document.getElementById("order-name").value.trim(); // Get and trim the name input
+
+    // Check if the order name is provided
+    if (!orderName) {
+        alert("Please enter your name to complete the order.");
+        return; // Stop the function if no name is provided
+    }
+
+    if (Object.keys(order).length === 0) {
+        alert("Add items to order before completing!");
+        return;
+    }
+
+    const orderSummary = Object.keys(order).map(itemName => {
+        return `${order[itemName].quantity}x ${itemName} - $${order[itemName].totalPrice.toFixed(2)}`;
+    }).join("\n");
+
+    // Calculate total price after discount
+    let totalAmount = 0;
+    let discountApplied = null;
+    if (document.getElementById("discount30").checked) {
+        discountApplied = "30% Discount";
+        totalAmount = Object.values(order).reduce((sum, item) => sum + item.totalPrice, 0) * 0.7; // Apply 30% discount
+    } else if (document.getElementById("discount40").checked) {
+        discountApplied = "40% Employee Discount";
+        totalAmount = Object.values(order).reduce((sum, item) => sum + item.totalPrice, 0) * 0.6; // Apply 40% discount
+    } else {
+        totalAmount = Object.values(order).reduce((sum, item) => sum + item.totalPrice, 0);
+    }
+
+    // Webhook message
+    const data = {
+        username: "OrderBot",
+        avatar_url: "https://cdn.discordapp.com/attachments/1200122767916412959/1297018173580771358/MomentsRP512x512.png?ex=6733610e&is=67320f8e&hm=1624e8720b56232ea2ae68bcb1bf7449916c9b8b1bac89025753a19a28ae543d&", // Optional: Add your bot's avatar image URL
+        content: "A new order has been completed!",
+        embeds: [{
+            title: `Order Summary by ${orderName}`,
+            description: `
+                **Items Ordered:**
+                \n${orderSummary}
+                \n
+                **Discount Applied:** ${discountApplied ? discountApplied : "None"}
+                \n**Total Amount:** $${totalAmount.toFixed(2)}
+            `,
+            fields: [
+                {
+                    name: "Total Items",
+                    value: Object.keys(order).length.toString(),
+                    inline: true
+                },
+                {
+                    name: "Discount",
+                    value: discountApplied ? discountApplied : "None",
+                    inline: true
+                },
+                {
+                    name: "Total Amount",
+                    value: `$${totalAmount.toFixed(2)}`,
+                    inline: true
+                }
+            ],
+            color: 0x2F3136,  // Color of the embed (dark grey)
+            footer: {
+                text: "Order completed successfully!",
+                icon_url: "https://example.com/your-footer-icon.png" // Optional: Add a footer icon
+            },
+            timestamp: new Date() // Adding timestamp to show when the order was completed
+        }]
+    };
+
+    const webhookUrl = "https://discord.com/api/webhooks/1304960764276248687/gz9IkRYciuiD2FyRPETVvVfoNas7tCMN4Hi5w8woN5XxRrWrM3m8MzfasWXNo-Y-MfA0"; // Replace with your Discord webhook URL
+
+    console.log("Sending order details to webhook...");
+
+    fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (response.ok) {
+            alert("Order completed successfully!");
+            clearOrder(); // Clear the order after completion
+        } else {
+            response.text().then(text => {
+                alert(`Failed to complete order: ${text}`);
+            });
+        }
+    })
+    .catch(error => {
+        console.error("Error sending webhook:", error);
+        alert("Error occurred while completing the order.");
+    });
+}
+
+      generateMenu();
+    </script>
+</body>
+</html>
