@@ -3,256 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digi Den Menu</title>
+    <title>Pantry Order System</title>
     <style>
-        /* Previous styles remain the same */
-        body {
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-                        url('https://cdn.discordapp.com/attachments/1280960788059783342/1280960788273561631/Digiden.jpg?ex=6733a133&is=67324fb3&hm=74b0249488113f062f9ffd5c7511dee1f227ae18b8c8a0904d923a64d7319016&') no-repeat center center fixed;
-            background-size: cover;
-            color: #f2f2f2;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            flex-direction: column;
-        }
-
-        .logo-container {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .logo {
-            width: 150px;
-            height: 150px;
-            object-fit: contain;
-            margin: 0 auto;
-            display: block;
-        }
-
-        /* Rest of the previous styles remain the same */
-        .page-title {
-            text-align: center;
-            color: #f2f2f2;
-            font-size: 2.5em;
-            margin: 20px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .container {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            padding: 20px;
-            background-color: rgba(0, 0, 0, 0.8);
-            border-radius: 10px;
-            width: 90%;
-            max-width: 1100px;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .panel {
-            flex: 1;
-            min-width: 320px;
-            max-width: 500px;
-            margin: 0;
-            background-color: rgba(45, 45, 45, 0.9);
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-
-        .panel h3 {
-            color: #f2f2f2;
-            margin-top: 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #3d3d3d;
-            text-align: center;
-            font-size: 1.5em;
-        }
-
-        #item-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            text-align: center;
-        }
-
-        .item-container {
-            background-color: rgba(61, 61, 61, 0.9);
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 10px;
-            transition: transform 0.2s;
-        }
-
-        .item-container:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        .item-name {
-            font-weight: bold;
-            margin-bottom: 8px;
-            font-size: 1.1em;
-        }
-
-        .item-price {
-            color: #2196F3;
-            font-size: 1em;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        .item-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .add-one-btn, .add-multi-btn {
-            padding: 8px;
-            border: none;
-            color: #f2f2f2;
-            border-radius: 3px;
-            cursor: pointer;
-            flex: 1;
-            transition: all 0.2s;
-        }
-
-        .add-one-btn {
-            background-color: #4CAF50;
-        }
-
-        .add-multi-btn {
-            background-color: #2196F3;
-        }
-
-        .add-one-btn:hover {
-            background-color: #45a049;
-            transform: scale(1.05);
-        }
-
-        .add-multi-btn:hover {
-            background-color: #1976D2;
-            transform: scale(1.05);
-        }
-
-        .discount {
-            margin-top: 15px;
-            display: block;
-            padding: 8px;
-            text-align: center;
-        }
-
-        .order-actions {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .order-actions button {
-            padding: 12px 20px;
-            border: none;
-            background-color: #3d3d3d;
-            color: #f2f2f2;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.2s;
-            flex: 1;
-        }
-
-        .order-actions button:hover {
-            background-color: #4d4d4d;
-            transform: scale(1.05);
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            margin-top: 15px;
-            border-radius: 5px;
-            border: 1px solid #3d3d3d;
-            background-color: rgba(45, 45, 45, 0.9);
-            color: #f2f2f2;
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        #order-list {
-            margin-top: 15px;
-            padding: 0;
-            text-align: center;
-        }
-
-        #order-list li {
-            padding: 10px;
-            margin: 8px 0;
-            background-color: rgba(61, 61, 61, 0.9);
-            border-radius: 3px;
-        }
-
-        h4 {
-            text-align: center;
-            color: #2196F3;
-            margin: 20px 0 15px 0;
-            font-size: 1.2em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .item-container { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .item-buttons { display: flex; gap: 5px; }
+        #order-summary { margin-top: 20px; }
+        .discount { margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="logo-container">
-        <img src="https://cdn.discordapp.com/attachments/1200122767916412959/1297018009403261079/logo_banner.png?ex=673360e6&is=67320f66&hm=73099846d5dcb0fc9a8f87af5b39e05423ce5f6f3025e7a7987ae8683d9d1c99&" alt="Digi Den Logo" class="logo">
+    <h1>Pantry Order System</h1>
+
+    <label for="order-name">Order Name:</label>
+    <input type="text" id="order-name" placeholder="Enter the name for this order">
+    
+    <div id="item-grid"></div>
+
+    <div class="discount">
+        <label><input type="checkbox" id="discount30"> 30% Discount</label>
+        <label><input type="checkbox" id="discount40"> 40% Discount</label>
     </div>
-    <h1 class="page-title">Digi Den Menu</h1>
-    <div class="container">
-        <div class="panel" id="menu">
-            <h3>Menu Items</h3>
-            <div id="item-grid"></div>
-        </div>
 
-        <div class="panel">
-            <h3>Order Summary</h3>
-            <ul id="order-list">No items added</ul>
-            <p style="text-align: center;">Subtotal: $<span id="subtotal">0.00</span></p>
-
-            <label class="discount">
-                <input type="checkbox" id="discount30"> 30% Discount
-            </label>
-            <label class="discount">
-                <input type="checkbox" id="discount40"> 40% Employee Discount
-            </label>
-
-            <input type="text" id="order-name" placeholder="Enter order name">
-
-            <div class="order-actions">
-                <button onclick="clearOrder()">Clear Order</button>
-                <button onclick="completeOrder()">Complete Order</button>
-            </div>
-        </div>
+    <div id="order-summary">
+        <h3>Order Summary</h3>
+        <ul id="order-list"></ul>
+        <p>Subtotal: $<span id="subtotal">0.00</span></p>
+        <button onclick="completeOrder()">Complete Order</button>
+        <button onclick="clearOrder()">Clear Order</button>
     </div>
 
     <script>
         const menuItems = {
-            "Electronics": [
-                { name: "📱 VPN", price: 20000 },
-                { name: "📻 Basic Radio", price: 2000 },
-                { name: "📻 Advanced Radio", price: 15000 },
-                { name: "💻 Green Laptop", price: 5000 },
-                { name: "💻 Red Laptop", price: 10000 },
-                { name: "💻 Blue Laptop", price: 20000 }
+            "Sandwiches": [
+                { name: "Chicken Sandwich", price: 5.99 },
+                { name: "Veggie Sandwich", price: 4.99 },
             ],
-            "Special Equipment": [
-                { name: "📱 Racing Tablet", price: 7500 },
-                { name: "📱 Boosting Tablet", price: 30000 },
-                { name: "🔧 Sequencer", price: 10000 }
+            "Beverages": [
+                { name: "Coffee", price: 1.99 },
+                { name: "Tea", price: 1.49 },
             ]
         };
 
@@ -261,7 +50,7 @@
         function showQuantityPrompt(name, price) {
             const qty = prompt(`Enter quantity for ${name}:`, "1");
             const quantity = parseInt(qty);
-            
+
             if (!isNaN(quantity) && quantity > 0) {
                 addItemToOrder(name, price, quantity);
             }
@@ -307,28 +96,35 @@
         }
 
         function completeOrder() {
-            if (Object.keys(order).length === 0) {
-                alert("Add items to order before completing!");
+            const orderName = document.getElementById("order-name").value.trim();
+            const subtotal = parseFloat(document.getElementById("subtotal").textContent);
+
+            if (!orderName) {
+                alert("Please enter an order name.");
                 return;
             }
 
-            const orderSummary = document.getElementById("order-list");
-            const orderName = document.getElementById("order-name").value || "Order";
-            const subtotal = document.getElementById("subtotal").textContent;
+            if (Object.keys(order).length === 0) {
+                alert("Please add at least one item to the order.");
+                return;
+            }
 
-            const orderSummaryText = orderSummary.innerHTML
-                .replace(/<ul>/g, '')
-                .replace(/<\/ul>/g, '')
-                .replace(/<li>/g, '* ')
-                .replace(/<\/li>/g, '\n');
+            const discount30 = document.getElementById("discount30").checked;
+            const discount40 = document.getElementById("discount40").checked;
+            const discountType = discount30 ? "30%" : discount40 ? "40%" : "No discount";
+
+            const orderSummary = document.getElementById("order-list");
+            const orderSummaryText = Array.from(orderSummary.getElementsByTagName("li"))
+                .map(item => item.textContent)
+                .join("\n");
 
             const embed = {
                 "title": "Order Summary",
-                "description": `${orderName}\n\n${orderSummaryText}`,
+                "description": `**Order Name:** ${orderName}\n\n**Discount:** ${discountType}\n\n**Items:**\n${orderSummaryText}`,
                 "fields": [
                     {
                         "name": "Subtotal",
-                        "value": `$${subtotal}`,
+                        "value": `$${subtotal.toFixed(2)}`,
                         "inline": true
                     }
                 ],
@@ -351,7 +147,7 @@
             })
             .then(response => {
                 if (!response.ok) throw new Error("Network response was not ok");
-                alert(`Order completed! Total: $${subtotal}`);
+                alert(`Order completed! Total: $${subtotal.toFixed(2)}`);
                 clearOrder();
             })
             .catch(error => {
