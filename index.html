@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digi Den Menu</title>
     <style>
-        /* Previous styles remain the same */
         body {
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
                         url('https://cdn.discordapp.com/attachments/1280960788059783342/1280960788273561631/Digiden.jpg?ex=6733a133&is=67324fb3&hm=74b0249488113f062f9ffd5c7511dee1f227ae18b8c8a0904d923a64d7319016&') no-repeat center center fixed;
@@ -34,7 +33,6 @@
             display: block;
         }
 
-        /* Rest of the previous styles remain the same */
         .page-title {
             text-align: center;
             color: #f2f2f2;
@@ -59,7 +57,7 @@
         .panel {
             flex: 1;
             min-width: 320px;
-            max-width: 500px;
+            max-width: 450px; /* Make the panel smaller */
             margin: 0;
             background-color: rgba(45, 45, 45, 0.9);
             padding: 20px;
@@ -79,16 +77,17 @@
         #item-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            gap: 10px; /* Reduce gap between items */
             text-align: center;
         }
 
         .item-container {
             background-color: rgba(61, 61, 61, 0.9);
             border-radius: 5px;
-            padding: 15px;
+            padding: 10px; /* Reduce padding for smaller item box */
             margin-bottom: 10px;
             transition: transform 0.2s;
+            font-size: 0.9em; /* Reduce font size for smaller items */
         }
 
         .item-container:hover {
@@ -99,12 +98,10 @@
         .item-name {
             font-weight: bold;
             margin-bottom: 8px;
-            font-size: 1.1em;
         }
 
         .item-price {
             color: #2196F3;
-            font-size: 1em;
             margin-bottom: 10px;
             font-weight: bold;
         }
@@ -115,7 +112,7 @@
         }
 
         .add-one-btn, .add-multi-btn {
-            padding: 8px;
+            padding: 6px; /* Make buttons smaller */
             border: none;
             color: #f2f2f2;
             border-radius: 3px;
@@ -250,55 +247,62 @@
                 { name: "💻 Blue Laptop", price: 20000 }
             ],
             "Special Equipment": [
-                { name: "📱 Racing Tablet", price: 7500 },
-                { name: "📱 Boosting Tablet", price: 30000 },
-                { name: "🔧 Sequencer", price: 10000 }
+                { name: "📱 Cellphone", price: 1000 },
+                { name: "🖥️ Special Monitor", price: 3000 },
+                { name: "🔧 Special Tool Kit", price: 4000 }
             ]
         };
 
-        let order = {};
+        function displayItems() {
+            let itemGrid = document.getElementById("item-grid");
 
-        function showQuantityPrompt(name, price) {
-            const qty = prompt(`Enter quantity for ${name}:`, "1");
-            const quantity = parseInt(qty);
-            
-            if (!isNaN(quantity) && quantity > 0) {
-                addItemToOrder(name, price, quantity);
+            // Iterate through menu items and display them
+            for (const category in menuItems) {
+                const categoryTitle = document.createElement('h4');
+                categoryTitle.textContent = category;
+                itemGrid.appendChild(categoryTitle);
+
+                menuItems[category].forEach(item => {
+                    const itemContainer = document.createElement('div');
+                    itemContainer.classList.add('item-container');
+                    itemContainer.innerHTML = `
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-price">$${item.price}</div>
+                        <div class="item-buttons">
+                            <button class="add-one-btn" onclick="addItem('${item.name}', ${item.price}, 1)">Add One</button>
+                            <button class="add-multi-btn" onclick="addItem('${item.name}', ${item.price}, 10)">Add 10</button>
+                        </div>
+                    `;
+                    itemGrid.appendChild(itemContainer);
+                });
             }
         }
 
-        function addItemToOrder(name, price, quantity = 1) {
-            if (order[name]) {
-                order[name].quantity += quantity;
+        displayItems();
+
+        let order = {};
+
+        function addItem(name, price, quantity) {
+            if (!order[name]) {
+                order[name] = { price: price, quantity: quantity };
             } else {
-                order[name] = { price, quantity };
+                order[name].quantity += quantity;
             }
             updateOrderSummary();
         }
 
         function updateOrderSummary() {
             const orderList = document.getElementById("order-list");
-            const subtotalElement = document.getElementById("subtotal");
-            let subtotal = 0;
             orderList.innerHTML = "";
-
-            for (let name in order) {
-                const { price, quantity } = order[name];
-                const itemSubtotal = price * quantity;
-                subtotal += itemSubtotal;
-
+            let subtotal = 0;
+            for (const itemName in order) {
+                const item = order[itemName];
+                subtotal += item.price * item.quantity;
                 const listItem = document.createElement("li");
-                listItem.textContent = `${name} x ${quantity} - $${itemSubtotal.toFixed(2)}`;
+                listItem.textContent = `${itemName} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`;
                 orderList.appendChild(listItem);
             }
-
-            const discount30 = document.getElementById("discount30").checked;
-            const discount40 = document.getElementById("discount40").checked;
-
-            if (discount30) subtotal *= 0.7;
-            if (discount40) subtotal *= 0.6;
-
-            subtotalElement.textContent = subtotal.toFixed(2);
+            document.getElementById("subtotal").textContent = subtotal.toFixed(2);
         }
 
         function clearOrder() {
@@ -306,135 +310,79 @@
             updateOrderSummary();
         }
 
-function completeOrder() {
-    const orderName = document.getElementById("order-name").value.trim();
-    if (!orderName) {
-        alert("Please enter an order name before completing!");
-        return;
-    }
-
-    if (Object.keys(order).length === 0) {
-        alert("Add items to order before completing!");
-        return;
-    }
-
-    const orderSummary = document.getElementById("order-list");
-    const subtotal = parseFloat(document.getElementById("subtotal").textContent);
-
-    // Calculate discounts
-    let discountApplied = "";
-    let finalTotal = subtotal;
-
-    if (document.getElementById("discount30").checked) {
-        finalTotal *= 0.7;
-        discountApplied = "30% Discount Applied";
-    }
-    if (document.getElementById("discount40").checked) {
-        finalTotal *= 0.6;
-        discountApplied = "40% Employee Discount Applied";
-    }
-    
-    // Format item details
-    let itemDetails = "";
-    for (let name in order) {
-        const { price, quantity } = order[name];
-        itemDetails += `* ${name} x ${quantity} - $${(price * quantity).toFixed(2)}\n`;
-    }
-
-    const embed = {
-        "title": "Order Summary",
-        "description": `**Order Name:** ${orderName}\n\n**Items:**\n${itemDetails}`,
-        "fields": [
-            {
-                "name": "Subtotal",
-                "value": `$${subtotal.toFixed(2)}`,
-                "inline": true
-            },
-            {
-                "name": "Discount",
-                "value": discountApplied || "No Discount",
-                "inline": true
-            },
-            {
-                "name": "Total",
-                "value": `$${finalTotal.toFixed(2)}`,
-                "inline": true
+        function completeOrder() {
+            const orderName = document.getElementById("order-name").value.trim();
+            if (!orderName) {
+                alert("Please enter an order name before completing!");
+                return;
             }
-        ],
-        "color": 0x0099ff
-    };
 
-    const orderData = {
-        "content": "",
-        "embeds": [embed],
-        "username": "Pantry",
-        "avatar_url": "https://cdn.discordapp.com/attachments/1200122767916412959/1297018173580771358/MomentsRP512x512.png?ex=6733610e&is=67320f8e&hm=1624e8720b56232ea2ae68bcb1bf7449916c9b8b1bac89025753a19a28ae543d&"
-    };
-
-    fetch('https://discord.com/api/webhooks/1304933522385010699/_L8gMHmG8VFshVgB4zrINZoX6srFfeoSy7XAtCQS4vhpfJW-Ax2GsbH24UFKCQE4iShy', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(orderData)
-    })
-    .then(response => {
-        if (!response.ok) throw new Error("Network response was not ok");
-        alert(`Order completed! Total: $${finalTotal.toFixed(2)}`);
-        clearOrder();
-    })
-    .catch(error => {
-        alert("There was a problem with your order submission: " + error.message);
-    });
-}
-
-        function renderMenu() {
-            const itemGrid = document.getElementById("item-grid");
-            itemGrid.innerHTML = "";
-
-            for (const category in menuItems) {
-                const header = document.createElement("h4");
-                header.textContent = category;
-                itemGrid.appendChild(header);
-
-                menuItems[category].forEach(({ name, price }) => {
-                    const itemContainer = document.createElement("div");
-                    itemContainer.className = "item-container";
-
-                    const itemName = document.createElement("div");
-                    itemName.className = "item-name";
-                    itemName.textContent = name;
-
-                    const itemPrice = document.createElement("div");
-                    itemPrice.className = "item-price";
-                    itemPrice.textContent = `$${price.toFixed(2)}`;
-
-                    const itemButtons = document.createElement("div");
-                    itemButtons.className = "item-buttons";
-
-                    const addOneBtn = document.createElement("button");
-                    addOneBtn.className = "add-one-btn";
-                    addOneBtn.textContent = "+1";
-                    addOneBtn.onclick = () => addItemToOrder(name, price, 1);
-
-                    const addMultiBtn = document.createElement("button");
-                    addMultiBtn.className = "add-multi-btn";
-                    addMultiBtn.textContent = "+Multiple";
-                    addMultiBtn.onclick = () => showQuantityPrompt(name, price);
-
-                    itemButtons.appendChild(addOneBtn);
-                    itemButtons.appendChild(addMultiBtn);
-
-                    itemContainer.appendChild(itemName);
-                    itemContainer.appendChild(itemPrice);
-                    itemContainer.appendChild(itemButtons);
-
-                    itemGrid.appendChild(itemContainer);
-                });
+            if (Object.keys(order).length === 0) {
+                alert("Add items to order before completing!");
+                return;
             }
+
+            const subtotal = parseFloat(document.getElementById("subtotal").textContent);
+
+            let discountApplied = "";
+            let finalTotal = subtotal;
+
+            if (document.getElementById("discount30").checked) {
+                finalTotal *= 0.7;
+                discountApplied = "30% Discount Applied";
+            }
+            if (document.getElementById("discount40").checked) {
+                finalTotal *= 0.6;
+                discountApplied = "40% Employee Discount Applied";
+            }
+
+            let itemDetails = "";
+            for (let name in order) {
+                const { price, quantity } = order[name];
+                itemDetails += `* ${name} x ${quantity} - $${(price * quantity).toFixed(2)}\n`;
+            }
+
+            const embed = {
+                "title": "Order Summary",
+                "description": `**Order Name:** ${orderName}\n\n**Items:**\n${itemDetails}`,
+                "fields": [
+                    {
+                        "name": "Subtotal",
+                        "value": `$${subtotal.toFixed(2)}`,
+                        "inline": true
+                    },
+                    {
+                        "name": "Discount",
+                        "value": discountApplied || "No Discount",
+                        "inline": true
+                    }
+                ],
+                "color": 0x0099ff
+            };
+
+            const orderData = {
+                "content": "",
+                "embeds": [embed],
+                "username": "Pantry",
+                "avatar_url": "https://cdn.discordapp.com/attachments/1200122767916412959/1297018173580771358/MomentsRP512x512.png?ex=6733610e&is=67320f8e&hm=1624e8720b56232ea2ae68bcb1bf7449916c9b8b1bac89025753a19a28ae543d&"
+            };
+
+            fetch('https://discord.com/api/webhooks/1304933522385010699/_L8gMHmG8VFshVgB4zrINZoX6srFfeoSy7XAtCQS4vhpfJW-Ax2GsbH24UFKCQE4iShy', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                alert(`Order completed! Total: $${finalTotal.toFixed(2)}`);
+                clearOrder();
+            })
+            .catch(error => {
+                alert("There was a problem with your order submission: " + error.message);
+            });
         }
-
-        renderMenu();
     </script>
 </body>
 </html>
