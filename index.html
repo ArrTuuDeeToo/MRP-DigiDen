@@ -361,14 +361,38 @@
             alert(`Order saved as ${orderName}`);
         }
 
-        function completeOrder() {
-            const orderName = document.getElementById("order-name").value.trim();
+          function completeOrder() {
+    const orderSummary = document.getElementById("order-list");
+    const orderName = document.getElementById("order-name").value;
+    const subtotal = document.getElementById("subtotal").textContent;
 
-            if (!orderName) {
-                alert("Please enter your name to complete the order.");
-                return;
+    const orderSummaryText = orderSummary.innerHTML.replace(/<ul>/g, '').replace(/<\/ul>/g, '').replace(/<li>/g, '* ').replace(/<\/li>/g, '\n');
+
+    const embed = {
+        "title": "Order Summary",
+        "description": `${orderName}\n\n${orderSummaryText}`,
+        "fields": [
+            {
+                "name": "Subtotal",
+                "value": `$${subtotal}`,
+                "inline": true
             }
+        ],
+        "color": 0x0099ff
+    };
 
+    const orderData = {
+        "content": "",
+        "embeds": [embed],
+        "username": "Pantry",
+        "avatar_url": "https://example.com/avatar.png"
+    };
+
+    fetch('https://discord.com/api/webhooks/1304933522385010699/_L8gMHmG8VFshVgB4zrINZoX6srFfeoSy7XAtCQS4vhpfJW-Ax2GsbH24UFKCQE4iShy', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
             if (Object.keys(order).length === 0) {
                 alert("Add items to order before completing!");
                 return;
