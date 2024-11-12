@@ -209,11 +209,9 @@
 </head>
 <body>
     <div class="logo-container">
-        <!-- Replace the src attribute with your actual logo URL -->
         <img src="https://cdn.discordapp.com/attachments/1200122767916412959/1297018009403261079/logo_banner.png?ex=673360e6&is=67320f66&hm=73099846d5dcb0fc9a8f87af5b39e05423ce5f6f3025e7a7987ae8683d9d1c99&" alt="Digi Den Logo" class="logo">
     </div>
     <h1 class="page-title">Digi Den Menu</h1>
-    <!-- Rest of the HTML remains the same -->
     <div class="container">
         <div class="panel" id="menu">
             <h3>Menu Items</h3>
@@ -242,7 +240,6 @@
     </div>
 
     <script>
-        // JavaScript remains exactly the same as in the previous version
         const menuItems = {
             "Electronics": [
                 { name: "📱 VPN", price: 20000 },
@@ -266,88 +263,42 @@
             const quantity = parseInt(qty);
             
             if (!isNaN(quantity) && quantity > 0) {
-                addItem(name, price, quantity);
-            } else if (qty !== null) {
-                alert("Please enter a valid number greater than 0");
+                addItemToOrder(name, price, quantity);
             }
         }
 
-        function generateMenu() {
-            const itemGrid = document.getElementById("item-grid");
-            for (let category in menuItems) {
-                let categoryDiv = document.createElement("div");
-                categoryDiv.innerHTML = `<h4>${category}</h4>`;
-                
-                menuItems[category].forEach(item => {
-                    let itemContainer = document.createElement("div");
-                    itemContainer.className = "item-container";
-                    
-                    itemContainer.innerHTML = `
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-price">$${item.price.toLocaleString()}</div>
-                        <div class="item-buttons">
-                            <button class="add-one-btn" onclick="addItem('${item.name}', ${item.price})">
-                                Add One
-                            </button>
-                            <button class="add-multi-btn" onclick="showQuantityPrompt('${item.name}', ${item.price})">
-                                Add Multiple
-                            </button>
-                        </div>
-                    `;
-                    
-                    categoryDiv.appendChild(itemContainer);
-                });
-                itemGrid.appendChild(categoryDiv);
-            }
-        }
-
-        function addItem(name, price, quantity = 1) {
+        function addItemToOrder(name, price, quantity = 1) {
             if (order[name]) {
                 order[name].quantity += quantity;
-                order[name].totalPrice += price * quantity;
             } else {
-                order[name] = { 
-                    quantity: quantity, 
-                    price: price, 
-                    totalPrice: price * quantity 
-                };
+                order[name] = { price, quantity };
             }
             updateOrderSummary();
         }
 
         function updateOrderSummary() {
             const orderList = document.getElementById("order-list");
-            const subtotal = document.getElementById("subtotal");
+            const subtotalElement = document.getElementById("subtotal");
+            let subtotal = 0;
+            orderList.innerHTML = "";
+
+            for (let name in order) {
+                const { price, quantity } = order[name];
+                const itemSubtotal = price * quantity;
+                subtotal += itemSubtotal;
+
+                const listItem = document.createElement("li");
+                listItem.textContent = `${name} x ${quantity} - $${itemSubtotal.toFixed(2)}`;
+                orderList.appendChild(listItem);
+            }
+
             const discount30 = document.getElementById("discount30").checked;
             const discount40 = document.getElementById("discount40").checked;
 
-            orderList.innerHTML = "";
-            let subtotalValue = 0;
-            let orderSummaryText = "";
+            if (discount30) subtotal *= 0.7;
+            if (discount40) subtotal *= 0.6;
 
-            const sortedItems = Object.entries(order).sort(([nameA], [nameB]) => nameA.localeCompare(nameB));
-
-            for (const [itemName, item] of sortedItems) {
-                subtotalValue += item.totalPrice;
-                orderSummaryText += `
-                    <li>
-                        <div style="display: flex; justify-content: space-between; margin: 5px 0;">
-                            <span>${item.quantity}x ${itemName}</span>
-                            <span>$${item.totalPrice.toLocaleString()}</span>
-                        </div>
-                    </li>`;
-            }
-
-            if (discount30) {
-                subtotalValue *= 0.7;
-            } else if (discount40) {
-                subtotalValue *= 0.6;
-            }
-
-            orderList.innerHTML = Object.keys(order).length 
-                ? `<ul style="list-style: none; padding: 0;">${orderSummaryText}</ul>` 
-                : "No items added";
-            subtotal.textContent = subtotalValue.toLocaleString();
+            subtotalElement.textContent = subtotal.toFixed(2);
         }
 
         function clearOrder() {
@@ -355,72 +306,106 @@
             updateOrderSummary();
         }
 
-        function saveAsFavorite() {
-            if (Object.keys(order).length === 0) return alert("Add items before saving!");
-            const orderName = document.getElementById("order-name").value || `Favorite`;
-            alert(`Order saved as ${orderName}`);
-        }
-
-          function completeOrder() {
-    const orderSummary = document.getElementById("order-list");
-    const orderName = document.getElementById("order-name").value;
-    const subtotal = document.getElementById("subtotal").textContent;
-
-    const orderSummaryText = orderSummary.innerHTML.replace(/<ul>/g, '').replace(/<\/ul>/g, '').replace(/<li>/g, '* ').replace(/<\/li>/g, '\n');
-
-    const embed = {
-        "title": "Order Summary",
-        "description": `${orderName}\n\n${orderSummaryText}`,
-        "fields": [
-            {
-                "name": "Subtotal",
-                "value": `$${subtotal}`,
-                "inline": true
-            }
-        ],
-        "color": 0x0099ff
-    };
-
-    const orderData = {
-        "content": "",
-        "embeds": [embed],
-        "username": "Pantry",
-        "avatar_url": "https://example.com/avatar.png"
-    };
-
-    fetch('https://discord.com/api/webhooks/1304933522385010699/_L8gMHmG8VFshVgB4zrINZoX6srFfeoSy7XAtCQS4vhpfJW-Ax2GsbH24UFKCQE4iShy', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        function completeOrder() {
             if (Object.keys(order).length === 0) {
                 alert("Add items to order before completing!");
                 return;
             }
 
-            let totalAmount = 0;
-            let discountApplied = null;
-            
-            if (document.getElementById("discount30").checked) {
-                discountApplied = "30% Discount";
-                totalAmount = Object.values(order).reduce((sum, item) => sum + item.totalPrice, 0) * 0.7;
-            } else if (document.getElementById("discount40").checked) {
-                discountApplied = "40% Employee Discount";
-                totalAmount = Object.values(order).reduce((sum, item) => sum + item.totalPrice, 0) * 0.6;
-            } else {
-                totalAmount = Object.values(order).reduce((sum, item) => sum + item.totalPrice, 0);
-            }
+            const orderSummary = document.getElementById("order-list");
+            const orderName = document.getElementById("order-name").value || "Order";
+            const subtotal = document.getElementById("subtotal").textContent;
 
-            alert(`Order completed! Total: $${totalAmount.toLocaleString()}`);
-            clearOrder();
+            const orderSummaryText = orderSummary.innerHTML
+                .replace(/<ul>/g, '')
+                .replace(/<\/ul>/g, '')
+                .replace(/<li>/g, '* ')
+                .replace(/<\/li>/g, '\n');
+
+            const embed = {
+                "title": "Order Summary",
+                "description": `${orderName}\n\n${orderSummaryText}`,
+                "fields": [
+                    {
+                        "name": "Subtotal",
+                        "value": `$${subtotal}`,
+                        "inline": true
+                    }
+                ],
+                "color": 0x0099ff
+            };
+
+            const orderData = {
+                "content": "",
+                "embeds": [embed],
+                "username": "Pantry",
+                "avatar_url": "https://cdn.discordapp.com/attachments/1200122767916412959/1297018173580771358/MomentsRP512x512.png?ex=6733610e&is=67320f8e&hm=1624e8720b56232ea2ae68bcb1bf7449916c9b8b1bac89025753a19a28ae543d&"
+            };
+
+            fetch('https://discord.com/api/webhooks/1304933522385010699/_L8gMHmG8VFshVgB4zrINZoX6srFfeoSy7XAtCQS4vhpfJW-Ax2GsbH24UFKCQE4iShy', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                alert(`Order completed! Total: $${subtotal}`);
+                clearOrder();
+            })
+            .catch(error => {
+                alert("There was a problem with your order submission: " + error.message);
+            });
         }
 
-        // Initialize the menu
-        generateMenu();
+        function renderMenu() {
+            const itemGrid = document.getElementById("item-grid");
+            itemGrid.innerHTML = "";
 
-        // Add event listeners for discount checkboxes
-        document.getElementById("discount30").addEventListener("change", updateOrderSummary);
-        document.getElementById("discount40").addEventListener("change", updateOrderSummary);
+            for (const category in menuItems) {
+                const header = document.createElement("h4");
+                header.textContent = category;
+                itemGrid.appendChild(header);
+
+                menuItems[category].forEach(({ name, price }) => {
+                    const itemContainer = document.createElement("div");
+                    itemContainer.className = "item-container";
+
+                    const itemName = document.createElement("div");
+                    itemName.className = "item-name";
+                    itemName.textContent = name;
+
+                    const itemPrice = document.createElement("div");
+                    itemPrice.className = "item-price";
+                    itemPrice.textContent = `$${price.toFixed(2)}`;
+
+                    const itemButtons = document.createElement("div");
+                    itemButtons.className = "item-buttons";
+
+                    const addOneBtn = document.createElement("button");
+                    addOneBtn.className = "add-one-btn";
+                    addOneBtn.textContent = "+1";
+                    addOneBtn.onclick = () => addItemToOrder(name, price, 1);
+
+                    const addMultiBtn = document.createElement("button");
+                    addMultiBtn.className = "add-multi-btn";
+                    addMultiBtn.textContent = "+Multiple";
+                    addMultiBtn.onclick = () => showQuantityPrompt(name, price);
+
+                    itemButtons.appendChild(addOneBtn);
+                    itemButtons.appendChild(addMultiBtn);
+
+                    itemContainer.appendChild(itemName);
+                    itemContainer.appendChild(itemPrice);
+                    itemContainer.appendChild(itemButtons);
+
+                    itemGrid.appendChild(itemContainer);
+                });
+            }
+        }
+
+        renderMenu();
     </script>
 </body>
 </html>
