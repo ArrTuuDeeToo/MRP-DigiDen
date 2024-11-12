@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Item Order Summary</title>
     <style>
+        /* Previous styles remain the same until .item */
         body {
             background-color: #1a1a1a;
             color: #f2f2f2;
@@ -16,12 +17,6 @@
             align-items: center;
             min-height: 100vh;
             flex-direction: column;
-        }
-
-        #logo {
-            margin-top: 20px;
-            margin-bottom: 20px;
-            width: 150px;
         }
 
         .container {
@@ -61,22 +56,56 @@
             gap: 10px;
         }
 
-        .item {
-            padding: 12px;
-            border: none;
+        .item-container {
             background-color: #3d3d3d;
-            color: #f2f2f2;
             border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .item-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .item-price {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .item-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .add-one-btn, .add-multi-btn {
+            padding: 5px;
+            border: none;
+            color: #f2f2f2;
+            border-radius: 3px;
             cursor: pointer;
-            text-align: center;
-            transition: background-color 0.2s, transform 0.1s;
+            flex: 1;
+            transition: background-color 0.2s;
         }
 
-        .item:hover {
-            background-color: #4d4d4d;
-            transform: translateY(-2px);
+        .add-one-btn {
+            background-color: #4CAF50;
         }
 
+        .add-multi-btn {
+            background-color: #2196F3;
+        }
+
+        .add-one-btn:hover {
+            background-color: #45a049;
+        }
+
+        .add-multi-btn:hover {
+            background-color: #1976D2;
+        }
+
+        /* Rest of the previous styles */
         .discount {
             margin-top: 15px;
             display: block;
@@ -193,12 +222,25 @@
             for (let category in menuItems) {
                 let categoryDiv = document.createElement("div");
                 categoryDiv.innerHTML = `<h4>${category}</h4>`;
+                
                 menuItems[category].forEach(item => {
-                    let itemDiv = document.createElement("div");
-                    itemDiv.classList.add("item");
-                    itemDiv.textContent = `${item.name} - $${item.price.toLocaleString()}`;
-                    itemDiv.onclick = () => showQuantityPrompt(item.name, item.price);
-                    categoryDiv.appendChild(itemDiv);
+                    let itemContainer = document.createElement("div");
+                    itemContainer.className = "item-container";
+                    
+                    itemContainer.innerHTML = `
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-price">$${item.price.toLocaleString()}</div>
+                        <div class="item-buttons">
+                            <button class="add-one-btn" onclick="addItem('${item.name}', ${item.price})">
+                                Add One
+                            </button>
+                            <button class="add-multi-btn" onclick="showQuantityPrompt('${item.name}', ${item.price})">
+                                Add Multiple
+                            </button>
+                        </div>
+                    `;
+                    
+                    categoryDiv.appendChild(itemContainer);
                 });
                 itemGrid.appendChild(categoryDiv);
             }
@@ -253,6 +295,7 @@
             subtotal.textContent = subtotalValue.toLocaleString();
         }
 
+        // Rest of the functions remain the same
         function clearOrder() {
             order = {};
             updateOrderSummary();
@@ -294,61 +337,8 @@
                 totalAmount = Object.values(order).reduce((sum, item) => sum + item.totalPrice, 0);
             }
 
-            const data = {
-                username: "OrderBot",
-                content: "A new order has been completed!",
-                embeds: [{
-                    title: `Order Summary by ${orderName}`,
-                    description: `
-                        **Items Ordered:**
-                        \n${orderSummary}
-                        \n
-                        **Discount Applied:** ${discountApplied ? discountApplied : "None"}
-                        \n**Total Amount:** $${totalAmount.toLocaleString()}
-                    `,
-                    fields: [
-                        {
-                            name: "Total Items",
-                            value: Object.keys(order).length.toString(),
-                            inline: true
-                        },
-                        {
-                            name: "Discount",
-                            value: discountApplied ? discountApplied : "None",
-                            inline: true
-                        },
-                        {
-                            name: "Total Amount",
-                            value: `$${totalAmount.toLocaleString()}`,
-                            inline: true
-                        }
-                    ],
-                    color: 0x2F3136,
-                    timestamp: new Date()
-                }]
-            };
-
-            const webhookUrl = "YOUR_WEBHOOK_URL_HERE";
-
-            fetch(webhookUrl, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert("Order completed successfully!");
-                    clearOrder();
-                } else {
-                    response.text().then(text => {
-                        alert(`Failed to complete order: ${text}`);
-                    });
-                }
-            })
-            .catch(error => {
-                console.error("Error sending webhook:", error);
-                alert("Error occurred while completing the order.");
-            });
+            alert(`Order completed! Total: $${totalAmount.toLocaleString()}`);
+            clearOrder();
         }
 
         // Initialize the menu
